@@ -1,0 +1,29 @@
+<app-navbar></app-navbar>
+
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="header">
+      <img src="assets/profile.png" alt="Profile Photo" class="profile-photo" />
+      <div class="name-id">
+        <h1>{{ customerData.name }}</h1>
+        <p>ID: {{ +customerData.customerId }}</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item"><strong>Address:</strong> {{ customerData.address }}</div>
+      <div class="info-item"><strong>City:</strong> {{ customerData.city }}</div>
+      <div class="info-item"><strong>Country:</strong> {{ customerData.country }}</div>
+      <div class="info-item"><strong>Postal Code:</strong> {{ customerData.postalCode }}</div>
+      <!-- <div class="info-item"><strong>Region:</strong> {{ customerData.region }}</div>
+      <div class="info-item"><strong>Phone:</strong> {{ customerData.phone }}</div>
+      <div class="info-item"><strong>Email:</strong> {{ customerData.email }}</div>
+      <div class="info-item"><strong>Account Group:</strong> {{ customerData.accountGroup }}</div>
+      <div class="info-item"><strong>Industry:</strong> {{ customerData.industry }}</div>
+      <div class="info-item"><strong>Company Code:</strong> {{ customerData.companyCode }}</div> -->
+    </div>
+
+    <button class="signout-btn" (click)="signOut()">Sign Out</button>
+  </div>
+</div>
+<app-footer></app-footer>

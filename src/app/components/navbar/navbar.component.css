@@ -1,0 +1,61 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* padding: 5px 10px; */
+  border-bottom: 1px solid #ccc;
+  background: linear-gradient(to right, rgba(238, 153, 166, 0.6), rgba(153, 208, 226, 0.6));
+  backdrop-filter: blur(6px);
+  color: #333;
+  font-family: 'Poppins', sans-serif;
+
+  .left-section {
+    display: flex;
+    align-items: center;
+
+    .logo {
+      padding: 10px;
+      height: 60px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 30px;
+
+    a {
+      text-decoration: none;
+      color: #444;
+      font-weight: 500;
+
+      &.active-link {
+        border-bottom: 2px solid #444;
+      }
+    }
+    a:hover {
+  transform: scale(1.02);
+}
+  }
+
+}
+
+.profile-icon {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-right: 20px;
+  transition: transform 0.3s ease;
+}
+
+.profile-icon:hover {
+  transform: scale(1.1);
+}
+

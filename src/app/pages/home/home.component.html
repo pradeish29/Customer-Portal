@@ -1,0 +1,44 @@
+<app-navbar></app-navbar>
+
+<div class="home-container">
+  <!-- Hero Banner -->
+  <section class="hero">
+    <h1>Welcome <span>{{customerData.name}}</span></h1>
+    <!-- <p>Empowering customers with access to services, data, and personalized tools.</p> -->
+     <p>To our Customer Portal, A secure online platform that offers customer self-service, allowing customers to access information, manage accounts, and interact with a company's services and support independently.</p>
+  </section>
+
+  <!-- Zigzag Info Sections -->
+
+  <section class="info-section">
+    <div class="content">
+      <img src="assets/order.jpg" alt="Track Orders" />
+      <div class="text">
+        <h2>Track Your Orders</h2>
+        <p>Stay up to date with real-time order tracking and get notified of key status changes instantly.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-section">
+    <div class="content reverse">
+      <img src="assets/finance.jpg" alt="Finance Summary" />
+      <div class="text">
+        <h2>View Finance & Payments</h2>
+        <p>Check your invoices, payment history, and manage pending payments in one place.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-section">
+    <div class="content">
+      <img src="assets/people.jpg" alt="Profile Settings" />
+      <div class="text">
+        <h2>Manage Your Profile</h2>
+        <p>Keep your personal and company details up-to-date to ensure smooth communication.</p>
+      </div>
+    </div>
+  </section>
+</div>
+<app-footer></app-footer>
+<router-outlet></router-outlet>

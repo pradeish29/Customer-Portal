@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --mat-sys-on-surface: #333 !important;
+  --mat-sys-on-surface-variant: #0e0d0d;
+  --mat-sys-surface-container: #ddd;
+}
+
+html, body { height: 100%; }
+body { margin: 0; }
+* {
+  font-family: 'Poppins', sans-serif;
+}
+

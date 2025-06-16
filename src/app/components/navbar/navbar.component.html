@@ -1,0 +1,41 @@
+<nav class="navbar">
+  <div class="left-section">
+    <!-- <img src="assets/logo.png" alt="Kaar Logo" class="logo" /> -->
+     <img src="assets/logo.png" alt="Kaar Logo" class="logo" (click)="navigateHome()" />
+
+  </div>
+
+  <!-- <div class="nav-links">
+    <a
+      routerLink="/home"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >Home</a>
+    <a
+      routerLink="/home/dashboard"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >Dashboard</a>
+
+    <a
+      routerLink="/home/finance"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >Finance</a>
+  </div> -->
+
+  <div class="nav-links">
+  <a routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+  <a routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+  <a routerLink="/finance" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Finance</a>
+</div>
+
+  <div class="right-section">
+    <img
+    src="assets/profile.png"
+    class="profile-icon"
+    (click)="navigateToProfile()"
+    alt="Profile"
+  />
+  </div>
+</nav>

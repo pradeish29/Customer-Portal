@@ -1,0 +1,234 @@
+<app-navbar></app-navbar>
+
+<div class="finance-container">
+  <section class="hero">
+    <h1>Finance Overview</h1>
+    <p>Track all your financial interactions with the company in one place.</p>
+  </section>
+
+   <!-- 1. Invoice List -->
+ <mat-card class="finance-card" [class.expanded]="expandedCard === 0">
+  <div class="card-header" (click)="toggleCard(0)">
+      <mat-icon class="card-icon">receipt</mat-icon>
+      <div class="card-texts">
+      <h2>Invoice Details</h2>
+      <p>View and download all your invoices.</p>
+    </div>
+      <mat-icon class="expand-icon">{{ expandedCard === 0 ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </div>
+    <div class="table-wrapper" *ngIf="expandedCard === 0">
+  <mat-form-field appearance="outline" class="filter-box">
+        <input matInput (keyup)="applyFilter($event, 'invoice')" placeholder="Search Invoices">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="invoiceDataSource" matSort #invoiceSort="matSort" class="mat-elevation-z8">
+
+        <ng-container matColumnDef="documentId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Doc ID</th>
+          <td mat-cell *matCellDef="let row">{{ +row.documentId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="billingDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Billing Date</th>
+          <td mat-cell *matCellDef="let row">{{ row.billingDate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+          <td mat-cell *matCellDef="let row">{{ row.amount }} {{ row.currency }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="positionCount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Items</th>
+          <td mat-cell *matCellDef="let row">{{ row.positionCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="download">
+        <th mat-header-cell *matHeaderCellDef>Preview</th>
+        <td mat-cell *matCellDef="let row"> 
+            <button class="download-btn" (click)="PreviewInvoicePdf(row.documentId)">Preview</button>
+        </td> 
+        </ng-container>
+                <ng-container matColumnDef="preview">
+        <th mat-header-cell *matHeaderCellDef>Download</th>
+        <td mat-cell *matCellDef="let row"> 
+            <button class="download-btn" (click)="downloadInvoicePdfFile(row.documentId)">Download</button>
+        </td> 
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="invoiceColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: invoiceColumns;"></tr>
+      </table>
+
+      <mat-paginator #invoicePaginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+  <!-- 2. Aging Summary -->
+  <mat-card class="finance-card" [class.expanded]="expandedCard === 1">
+  <div class="card-header" (click)="toggleCard(1)">
+      <mat-icon class="card-icon">payments</mat-icon>
+      <div class="card-texts">
+      <h2>Payments and Aging</h2>
+      <p>Track payments and view aging details.</p>
+    </div>
+      <mat-icon class="expand-icon">{{ expandedCard === 1 ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </div>
+     <div class="table-wrapper" *ngIf="expandedCard === 1">
+  <mat-form-field appearance="outline" class="filter-box">
+        <input matInput (keyup)="applyFilter($event, 'aging')" placeholder="Search Payments">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="agingDataSource" matSort #agingSort="matSort" class="mat-elevation-z1">
+
+        <ng-container matColumnDef="documentId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Doc ID</th>
+          <td mat-cell *matCellDef="let row">{{ +row.documentId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="billingDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Billing Date</th>
+          <td mat-cell *matCellDef="let row">{{ row.billingDate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="dueDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</th>
+          <td mat-cell *matCellDef="let row">{{ row.dueDate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="agingDays">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Aging (days)</th>
+          <td mat-cell *matCellDef="let row">{{ row.agingDays }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+          <td mat-cell *matCellDef="let row">{{ row.amount }} {{ row.currency }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="agingColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: agingColumns;"></tr>
+      </table>
+
+      <mat-paginator #agingPaginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+  <!-- 3. Credit/Debit Memos -->
+  <mat-card class="finance-card" [class.expanded]="expandedCard === 2">
+  <div class="card-header" (click)="toggleCard(2)">
+      <mat-icon class="card-icon">swap_horiz</mat-icon>
+      <div class="card-texts">
+      <h2>Credit/Debit Memos</h2>
+      <p>Manage your credit and debit memos.</p>
+    </div>
+      <mat-icon class="expand-icon">{{ expandedCard === 2 ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </div>
+    <div class="table-wrapper" *ngIf="expandedCard === 2">
+  <mat-form-field appearance="outline" class="filter-box">
+        <input matInput (keyup)="applyFilter($event, 'memo')" placeholder="Search Memos">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="memoDataSource" matSort #memoSort="matSort" class="mat-elevation-z1">
+
+        <ng-container matColumnDef="documentId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Doc ID</th>
+          <td mat-cell *matCellDef="let row">{{ +row.documentId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="billingDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Billing Date</th>
+          <td mat-cell *matCellDef="let row">{{ row.billingDate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+          <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="customerRef">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer Ref</th>
+          <td mat-cell *matCellDef="let row">{{ +row.customerRef }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="salesOrg">
+          <th mat-header-cell *matHeaderCellDef>Sales Org</th>
+          <td mat-cell *matCellDef="let row">{{ row.salesOrg }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+          <td mat-cell *matCellDef="let row">{{ row.amount }} {{ row.currency }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="memoColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: memoColumns;"></tr>
+      </table>
+
+      <mat-paginator #memoPaginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+    <!-- 4. Overall Sales -->
+  <mat-card class="finance-card" [class.expanded]="expandedCard === 3">
+  <div class="card-header" (click)="toggleCard(3)">
+      <mat-icon class="card-icon">bar_chart</mat-icon>
+      <div class="card-texts">
+      <h2>Overall Sales</h2>
+      <p>Get insights into total sales performance.</p>
+    </div>
+      <mat-icon class="expand-icon">{{ expandedCard === 3 ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </div>
+    <div class="table-wrapper" *ngIf="expandedCard === 3">
+  <mat-form-field appearance="outline" class="filter-box">
+        <input matInput (keyup)="applyFilter($event, 'sales')" placeholder="Search Overall Sales">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="overallSalesDataSource" matSort #salesSort="matSort" class="mat-elevation-z1">
+
+        <ng-container matColumnDef="documentId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Doc ID</th>
+          <td mat-cell *matCellDef="let row">{{ +row.documentId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+          <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+          <td mat-cell *matCellDef="let row">{{ row.date }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="productId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Product ID</th>
+          <td mat-cell *matCellDef="let row">{{ +row.productId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+          <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header >Qty</th>
+          <td mat-cell *matCellDef="let row">{{ row.quantity }} {{ row.unit }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+          <td mat-cell *matCellDef="let row">{{ row.amount }} {{ row.currency }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="overallSalesColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: overallSalesColumns;"></tr>
+      </table>
+
+      <mat-paginator #salesPaginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+
+</div>
+
+<app-footer></app-footer>

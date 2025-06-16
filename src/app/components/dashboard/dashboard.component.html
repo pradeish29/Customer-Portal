@@ -1,0 +1,186 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+  <section class="hero">
+    <h1>Dashboard Overview</h1>
+    <p>Track all your Transactions with the company in one place.</p>
+  </section>
+
+  <!-- Card Template: Reused layout across sections -->
+
+  <!-- SALES ORDERS -->
+  <mat-card class="dashboard-card" [class.expanded]="expandedCard === 0">
+    <div class="card-header" (click)="toggleCard(0)">
+      <mat-icon class="card-icon">shopping_cart</mat-icon>
+      <div class="card-texts">
+        <h2>Sales Orders</h2>
+        <p>Summary of customer sales orders.</p>
+      </div>
+      <mat-icon class="expand-icon">
+        {{ expandedCard === 0 ? 'expand_less' : 'expand_more' }}
+      </mat-icon>
+    </div>
+
+    <div class="table-wrapper" *ngIf="expandedCard === 0">
+      <mat-form-field appearance="outline" class="filter-box">
+        <input matInput (keyup)="applyFilter($event, 'sales')" placeholder="Search Sales Orders">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="salesOrdersDataSource" matSort #salesSort="matSort" class="mat-elevation-z1">
+        <ng-container matColumnDef="orderId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Order ID</th>
+          <td mat-cell *matCellDef="let element">{{ +element.orderId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="productId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Product ID</th>
+          <td mat-cell *matCellDef="let element">{{ +element.productId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.date }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Quantity</th>
+          <td mat-cell *matCellDef="let element">{{ element.quantity }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
+          <td mat-cell *matCellDef="let element">{{ element.price }} {{ element.currency }}</td>
+        </ng-container>
+
+        <!-- Table Rendering -->
+        <tr mat-header-row *matHeaderRowDef="salesOrdersColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: salesOrdersColumns;"></tr>
+      </table>
+
+      <mat-paginator #salesPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+    <!-- INQUIRIES -->
+  <mat-card class="dashboard-card" [class.expanded]="expandedCard === 2">
+    <div class="card-header" (click)="toggleCard(2)">
+      <mat-icon class="card-icon">receipt_long</mat-icon>
+      <div class="card-texts">
+        <h2>Inquiries</h2>
+        <p>Check all inquiries and their status.</p>
+      </div>
+      <mat-icon class="expand-icon">
+        {{ expandedCard === 2 ? 'expand_less' : 'expand_more' }}
+      </mat-icon>
+    </div>
+
+    <div class="table-wrapper" *ngIf="expandedCard === 2">
+      <mat-form-field appearance="outline" class="filter-box">
+        <input matInput (keyup)="applyFilter($event, 'invoices')" placeholder="Search Inquiries">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="invoicesDataSource" matSort #invoicesSort="matSort" class="mat-elevation-z1">
+        <ng-container matColumnDef="orderId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Order ID</th>
+          <td mat-cell *matCellDef="let element">{{ +element.orderId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="productId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Product ID</th>
+          <td mat-cell *matCellDef="let element">{{ +element.productId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.date }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Quantity</th>
+          <td mat-cell *matCellDef="let element">{{ element.quantity }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
+          <td mat-cell *matCellDef="let element">{{ element.price }} {{ element.currency }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="invoicesColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: invoicesColumns;"></tr>
+      </table>
+
+
+      <mat-paginator #invoicesPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+  <!-- DELIVERIES -->
+  <mat-card class="dashboard-card" [class.expanded]="expandedCard === 1">
+    <div class="card-header" (click)="toggleCard(1)">
+      <mat-icon class="card-icon">local_shipping</mat-icon>
+      <div class="card-texts">
+        <h2>Deliveries</h2>
+        <p>Latest delivery status and logs.</p>
+      </div>
+      <mat-icon class="expand-icon">
+        {{ expandedCard === 1 ? 'expand_less' : 'expand_more' }}
+      </mat-icon>
+    </div>
+
+    <div class="table-wrapper" *ngIf="expandedCard === 1">
+      <mat-form-field appearance="outline" class="filter-box">
+        <input matInput (keyup)="applyFilter($event, 'deliveries')" placeholder="Search Deliveries">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="deliveriesDataSource" matSort #deliveriesSort="matSort" class="mat-elevation-z1">
+        <ng-container matColumnDef="orderId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Order ID</th>
+          <td mat-cell *matCellDef="let element">{{ +element.orderId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="productId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Product ID</th>
+          <td mat-cell *matCellDef="let element">{{ +element.productId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.date }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
+          <td mat-cell *matCellDef="let element">{{ element.price }} {{ element.currency }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let element">{{ element.status }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="deliveriesColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: deliveriesColumns;"></tr>
+      </table>
+
+      <mat-paginator #deliveriesPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+</div>
+
+<app-footer></app-footer>
