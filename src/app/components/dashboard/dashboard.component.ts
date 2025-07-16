@@ -131,8 +131,82 @@ applyFilter(event: Event, type: string) {
   else if (type === 'invoices') this.invoicesDataSource.filter = filterValue;
 }
 
+// Add these helper methods to your class
+private formatSAPDate(sapDate: string): string {
+  if (!sapDate) return '';
+  
+  try {
+    // Handle /Date(timestamp)/ format from OData
+    if (sapDate.includes('/Date(')) {
+      const timestamp = sapDate.match(/\d+/)?.[0];
+      if (timestamp) {
+        const date = new Date(parseInt(timestamp));
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: '2-digit' 
+        });
+      }
+    }
+    
+    // Handle YYYYMMDD format
+    if (sapDate.length === 8 && /^\d{8}$/.test(sapDate)) {
+      const year = sapDate.substring(0, 4);
+      const month = sapDate.substring(4, 6);
+      const day = sapDate.substring(6, 8);
+      const date = new Date(`${year}-${month}-${day}`);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: '2-digit' 
+      });
+    }
+    
+    // Handle ISO date format
+    if (sapDate.includes('-') || sapDate.includes('/')) {
+      const date = new Date(sapDate);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: '2-digit' 
+        });
+      }
+    }
+    
+    return sapDate;
+  } catch (error) {
+    console.warn('Error formatting date:', sapDate, error);
+    return sapDate;
+  }
+}
+
+private formatCurrency(amount: string, currency: string): string {
+  if (!amount || !currency) return amount || '';
+  
+  const currencySymbols: { [key: string]: string } = {
+    'INR': '₹',
+    'USD': '$',
+    'EUR': '€',
+  };
+  
+  const symbol = currencySymbols[currency.toUpperCase()] || currency + ' ';
+  
+  // Parse the amount and format with commas
+  const numAmount = parseFloat(amount);
+  if (!isNaN(numAmount)) {
+    return symbol + numAmount.toLocaleString('en-US', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    });
+  }
+  
+  return symbol + amount;
+}
+
+// Updated methods with formatting
 fetchSalesOrders(customerId: string) {
-  this.http.post('http://localhost:3000/custsales', { customerId }, { responseType: 'text' }).subscribe({
+  this.http.post('http://localhost:1000/custsales', { customerId }, { responseType: 'text' }).subscribe({
     next: (xmlString) => {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -142,10 +216,13 @@ fetchSalesOrders(customerId: string) {
         orderId: item.getElementsByTagName('Vbeln')[0]?.textContent || '',
         productId: item.getElementsByTagName('Matnr')[0]?.textContent || '',
         name: item.getElementsByTagName('Arktx')[0]?.textContent || '',
-        date: item.getElementsByTagName('Erdat')[0]?.textContent || '',
+        date: this.formatSAPDate(item.getElementsByTagName('Erdat')[0]?.textContent || ''),
         quantity: item.getElementsByTagName('Kwmeng')[0]?.textContent || '',
         unit: item.getElementsByTagName('Vrkme')[0]?.textContent || '',
-        price: item.getElementsByTagName('Netwr')[0]?.textContent || '',
+        price: this.formatCurrency(
+          item.getElementsByTagName('Netwr')[0]?.textContent || '',
+          item.getElementsByTagName('Waerk')[0]?.textContent || ''
+        ),
         currency: item.getElementsByTagName('Waerk')[0]?.textContent || '',
       }));
 
@@ -158,7 +235,7 @@ fetchSalesOrders(customerId: string) {
 }
 
 fetchInvoices(customerId: string) {
-  this.http.post('http://localhost:3000/custinquiry', { customerId }, { responseType: 'text' }).subscribe({
+  this.http.post('http://localhost:1000/custinquiry', { customerId }, { responseType: 'text' }).subscribe({
     next: (xmlString) => {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -168,10 +245,13 @@ fetchInvoices(customerId: string) {
         orderId: item.getElementsByTagName('Vbeln')[0]?.textContent || '',
         productId: item.getElementsByTagName('Matnr')[0]?.textContent || '',
         name: item.getElementsByTagName('Arktx')[0]?.textContent || '',
-        date: item.getElementsByTagName('Erdat')[0]?.textContent || '',
+        date: this.formatSAPDate(item.getElementsByTagName('Erdat')[0]?.textContent || ''),
         quantity: item.getElementsByTagName('Kwmeng')[0]?.textContent || '',
         unit: item.getElementsByTagName('Vrkme')[0]?.textContent || '',
-        price: item.getElementsByTagName('Netwr')[0]?.textContent || '',
+        price: this.formatCurrency(
+          item.getElementsByTagName('Netwr')[0]?.textContent || '',
+          item.getElementsByTagName('Waerk')[0]?.textContent || ''
+        ),
         currency: item.getElementsByTagName('Waerk')[0]?.textContent || '',
       }));
 
@@ -184,7 +264,7 @@ fetchInvoices(customerId: string) {
 }
 
 fetchDeliveries(customerId: string) {
-  this.http.post('http://localhost:3000/custdelivery', { customerId }, { responseType: 'text' }).subscribe({
+  this.http.post('http://localhost:1000/custdelivery', { customerId }, { responseType: 'text' }).subscribe({
     next: (xmlString) => {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -194,8 +274,11 @@ fetchDeliveries(customerId: string) {
         orderId: item.getElementsByTagName('Vbeln')[0]?.textContent || '',
         productId: item.getElementsByTagName('Matnr')[0]?.textContent || '',
         name: item.getElementsByTagName('Arktx')[0]?.textContent || '',
-        date: item.getElementsByTagName('Lfdat')[0]?.textContent || '',
-        price: item.getElementsByTagName('Netwr')[0]?.textContent || '',
+        date: this.formatSAPDate(item.getElementsByTagName('Lfdat')[0]?.textContent || ''),
+        price: this.formatCurrency(
+          item.getElementsByTagName('Netwr')[0]?.textContent || '',
+          item.getElementsByTagName('Waerk')[0]?.textContent || ''
+        ),
         currency: item.getElementsByTagName('Waerk')[0]?.textContent || '',
         type: item.getElementsByTagName('Lfart')[0]?.textContent || '',
         status: this.mapDeliveryStatus(item.getElementsByTagName('Gbstk')[0]?.textContent || '')

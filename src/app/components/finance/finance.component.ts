@@ -297,9 +297,81 @@ applyFilter(event: Event, type: string): void {
       break;
   }
 }
+  // Add these helper methods to your class
+  private formatSAPDate(sapDate: string): string {
+    if (!sapDate) return '';
+    
+    try {
+      // Handle /Date(timestamp)/ format from OData
+      if (sapDate.includes('/Date(')) {
+        const timestamp = sapDate.match(/\d+/)?.[0];
+        if (timestamp) {
+          const date = new Date(parseInt(timestamp));
+          return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: '2-digit' 
+          });
+        }
+      }
+      
+      // Handle YYYYMMDD format
+      if (sapDate.length === 8 && /^\d{8}$/.test(sapDate)) {
+        const year = sapDate.substring(0, 4);
+        const month = sapDate.substring(4, 6);
+        const day = sapDate.substring(6, 8);
+        const date = new Date(`${year}-${month}-${day}`);
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: '2-digit' 
+        });
+      }
+      
+      // Handle ISO date format
+      if (sapDate.includes('-') || sapDate.includes('/')) {
+        const date = new Date(sapDate);
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: '2-digit' 
+          });
+        }
+      }
+      
+      return sapDate;
+    } catch (error) {
+      console.warn('Error formatting date:', sapDate, error);
+      return sapDate;
+    }
+  }
 
+  private formatCurrency(amount: string, currency: string): string {
+    if (!amount || !currency) return amount || '';
+    
+    const currencySymbols: { [key: string]: string } = {
+      'INR': '₹',
+      'USD': '$',
+      'EUR': '€',
+    };
+    
+    const symbol = currencySymbols[currency.toUpperCase()] || currency + ' ';
+    
+    // Parse the amount and format with commas
+    const numAmount = parseFloat(amount);
+    if (!isNaN(numAmount)) {
+      return symbol + numAmount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      });
+    }
+    
+    return symbol + amount;
+  }
+  // Updated methods with formatting
   fetchOverallSales(customerId: string) {
-    this.http.post('http://localhost:3000/custoverallsales', { customerId }, { responseType: 'text' }).subscribe({
+    this.http.post('http://localhost:1000/custoverallsales', { customerId }, { responseType: 'text' }).subscribe({
       next: (xmlString) => {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -308,12 +380,15 @@ applyFilter(event: Event, type: string): void {
         const data: SalesEntry[] = items.map((item: any) => ({
           documentId: item.getElementsByTagName('Vbeln')[0]?.textContent || '',
           type: item.getElementsByTagName('Auart')[0]?.textContent || '',
-          date: item.getElementsByTagName('Erdat')[0]?.textContent || '',
+          date: this.formatSAPDate(item.getElementsByTagName('Erdat')[0]?.textContent || ''),
           productId: item.getElementsByTagName('Matnr')[0]?.textContent || '',
           description: item.getElementsByTagName('Arktx')[0]?.textContent || '',
           unit: item.getElementsByTagName('Vrkme')[0]?.textContent || '',
           quantity: item.getElementsByTagName('Kwmweng')[0]?.textContent || '',
-          amount: item.getElementsByTagName('Netwr')[0]?.textContent || '',
+          amount: this.formatCurrency(
+            item.getElementsByTagName('Netwr')[0]?.textContent || '',
+            item.getElementsByTagName('Waerk')[0]?.textContent || ''
+          ),
           currency: item.getElementsByTagName('Waerk')[0]?.textContent || ''
         }));
 
@@ -324,7 +399,7 @@ applyFilter(event: Event, type: string): void {
   }
 
   fetchAging(customerId: string) {
-    this.http.post('http://localhost:3000/custaging', { customerId }, { responseType: 'text' }).subscribe({
+    this.http.post('http://localhost:1000/custaging', { customerId }, { responseType: 'text' }).subscribe({
       next: (xmlString) => {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -332,9 +407,12 @@ applyFilter(event: Event, type: string): void {
 
         const data: AgingEntry[] = items.map((item: any) => ({
           documentId: item.getElementsByTagName('Vbeln')[0]?.textContent || '',
-          billingDate: item.getElementsByTagName('Fkdat')[0]?.textContent || '',
-          dueDate: item.getElementsByTagName('Dats')[0]?.textContent || '',
-          amount: item.getElementsByTagName('Netwr')[0]?.textContent || '',
+          billingDate: this.formatSAPDate(item.getElementsByTagName('Fkdat')[0]?.textContent || ''),
+          dueDate: this.formatSAPDate(item.getElementsByTagName('Dats')[0]?.textContent || ''),
+          amount: this.formatCurrency(
+            item.getElementsByTagName('Netwr')[0]?.textContent || '',
+            item.getElementsByTagName('Waerk')[0]?.textContent || ''
+          ),
           currency: item.getElementsByTagName('Waerk')[0]?.textContent || '',
           agingDays: item.getElementsByTagName('Aging')[0]?.textContent || ''
         }));
@@ -346,7 +424,7 @@ applyFilter(event: Event, type: string): void {
   }
 
   fetchMemos(customerId: string) {
-    this.http.post('http://localhost:3000/custmemos', { customerId }, { responseType: 'text' }).subscribe({
+    this.http.post('http://localhost:1000/custmemos', { customerId }, { responseType: 'text' }).subscribe({
       next: (xmlString) => {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -354,12 +432,15 @@ applyFilter(event: Event, type: string): void {
 
         const data: MemoEntry[] = items.map((item: any) => ({
           documentId: item.getElementsByTagName('VbelnVf')[0]?.textContent || '',
-          billingDate: item.getElementsByTagName('Fkdat')[0]?.textContent || '',
+          billingDate: this.formatSAPDate(item.getElementsByTagName('Fkdat')[0]?.textContent || ''),
           type: item.getElementsByTagName('Fkart')[0]?.textContent || '',
           customerRef: item.getElementsByTagName('Kunrg')[0]?.textContent || '',
           salesOrg: item.getElementsByTagName('Vkorg')[0]?.textContent || '',
-          amount: item.getElementsByTagName('Netwr')[0]?.textContent || '',
-          currency: item.getElementsByTagName('Waerk')[0]?.textContent || ''
+          amount: this.formatCurrency(
+            item.getElementsByTagName('Netwr')[0]?.textContent || '',
+            item.getElementsByTagName('Waerk')[0]?.textContent || ''
+          ),
+          currency: item.getElementsByTagName('Waerk')[0]?.textContent || '',
         }));
 
         this.memoDataSource.data = data;
@@ -369,7 +450,7 @@ applyFilter(event: Event, type: string): void {
   }
 
   fetchInvoices(customerId: string) {
-    this.http.post('http://localhost:3000/custinvoicelist', { customerId }, { responseType: 'text' }).subscribe({
+    this.http.post('http://localhost:1000/custinvoicelist', { customerId }, { responseType: 'text' }).subscribe({
       next: (xmlString) => {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -377,8 +458,11 @@ applyFilter(event: Event, type: string): void {
 
         const data: InvoiceEntry[] = items.map((item: any) => ({
           documentId: item.getElementsByTagName('Vbeln')[0]?.textContent || '',
-          billingDate: item.getElementsByTagName('Fkdat')[0]?.textContent || '',
-          amount: item.getElementsByTagName('Netwr')[0]?.textContent || '',
+          billingDate: this.formatSAPDate(item.getElementsByTagName('Fkdat')[0]?.textContent || ''),
+          amount: this.formatCurrency(
+            item.getElementsByTagName('Netwr')[0]?.textContent || '',
+            item.getElementsByTagName('Waerk')[0]?.textContent || ''
+          ),
           currency: item.getElementsByTagName('Waerk')[0]?.textContent || '',
           positionCount: item.getElementsByTagName('Poscnt')[0]?.textContent || ''
         }));
@@ -393,7 +477,7 @@ applyFilter(event: Event, type: string): void {
     const customerId = localStorage.getItem('customerId');
     const payload = { customerId, vbeln };
 
-    this.http.post<{ pdfBase64: string }>('http://localhost:3000/custinvoicefile', payload)
+    this.http.post<{ pdfBase64: string }>('http://localhost:1000/custinvoicefile', payload)
       .subscribe(response => {
         const base64 = response.pdfBase64;
 
@@ -417,7 +501,7 @@ applyFilter(event: Event, type: string): void {
     const customerId = localStorage.getItem('customerId');
     const payload = { customerId, vbeln };
 
-    this.http.post<{ pdfBase64: string }>('http://localhost:3000/custinvoicefile', payload)
+    this.http.post<{ pdfBase64: string }>('http://localhost:1000/custinvoicefile', payload)
       .subscribe(response => {
         const base64 = response.pdfBase64;
 

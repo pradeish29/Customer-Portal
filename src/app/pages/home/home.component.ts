@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit  {
     ngOnInit(): void {
     const customerId = localStorage.getItem('customerId');
         this.http
-      .post<any>('http://localhost:3000/custprofile', { customerId })
+      .post<any>('http://localhost:1000/custprofile', { customerId })
       .subscribe({
         next: data => {
           this.customerData = {

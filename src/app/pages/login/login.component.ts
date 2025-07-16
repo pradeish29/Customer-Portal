@@ -49,7 +49,7 @@ constructor(private http: HttpClient, private userService: UserService, private 
       password: this.password,
     };
 
-    this.http.post<any>('http://localhost:3000/custlogin', payload).subscribe({
+    this.http.post<any>('http://localhost:1000/custlogin', payload).subscribe({
       next: (response) => {
         // You can adjust this depending on how you format the response from backend
         const msg = response?.Envelope?.Body?.ZfmLoginPmResponse?.Return;
