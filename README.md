@@ -1,6 +1,10 @@
-# Customer
-
+# Customer 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6.
+
+## Frontend Ui
+![image](https://github.com/user-attachments/assets/723d5136-9f5b-40cc-8fcf-8740d85463a8)
+<img width="1366" height="728" alt="image (1)" src="https://github.com/user-attachments/assets/5a503726-3fa6-41d5-a34e-c02bbd95c205" />
+<img width="1366" height="728" alt="image (2)" src="https://github.com/user-attachments/assets/18c69bd6-64ce-4d49-8f7b-d31124c7f625" />
 
 ## Development server
 
